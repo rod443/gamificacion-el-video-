@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamificación en el Aprendizaje</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            min-height: 80vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            position: absolute;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide h1 {
+            font-size: 3.5em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide h2 {
+            font-size: 2.8em;
+            color: #34495e;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .slide h3 {
+            font-size: 2.2em;
+            color: #667eea;
+            margin: 25px 0 15px 0;
+        }
+
+        .slide p {
+            font-size: 1.4em;
+            line-height: 1.8;
+            color: #2c3e50;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .subtitle {
+            font-size: 1.8em;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .definition-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            font-size: 1.5em;
+            line-height: 1.6;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .theory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .theory-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .theory-card.animate {
+            transform: translateY(0);
+        }
+
+        .theory-card h4 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .theory-card p {
+            font-size: 1.2em;
+            color: white;
+            text-align: center;
+        }
+
+        .elements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .element-card {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            transform: scale(0.9);
+            opacity: 0;
+        }
+
+        .element-card.animate {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .element-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #2c3e50;
+            backdrop-filter: blur(10px);
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 1.3em;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-left: 5px solid #667eea;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .benefits-list {
+            text-align: left;
+            font-size: 1.3em;
+            line-height: 2;
+            color: #2c3e50;
+        }
+
+        .benefits-list li {
+            margin: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .benefits-list li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-text {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .title-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .title-slide h1 {
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <div class="progress-bar" id="progressBar"></div>
+        
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+        </div>
+
+        <!-- Slide 1: Portada -->
+        <div class="slide active title-slide">
+            <h1 class="animate-text">🎮 GAMIFICACIÓN EN EL APRENDIZAJE 🎮</h1>
+            <p class="subtitle animate-text">Una revolución en la educación moderna</p>
+            <div style="margin-top: 60px; font-size: 2em;">
+                <span style="margin: 0 20px;">🎯</span>
+                <span style="margin: 0 20px;">🏆</span>
+                <span style="margin: 0 20px;">⭐</span>
+                <span style="margin: 0 20px;">🎲</span>
+            </div>
+        </div>
+
+        <!-- Slide 2: Definición -->
+        <div class="slide">
+            <h2>¿Qué es la Gamificación? 🤔</h2>
+            <div class="definition-box">
+                <p><strong>La gamificación es el uso de elementos y técnicas de diseño de juegos en contextos no lúdicos para motivar, involucrar y mejorar el comportamiento y el aprendizaje.</strong></p>
+            </div>
+            <div class="quote">
+                <p><strong>Yu-kai Chou (2015):</strong> "La gamificación es el arte de derivar elementos divertidos y atractivos encontrados típicamente en los juegos e incorporarlos cuidadosamente en actividades del mundo real."</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Fundamento Teórico -->
+        <div class="slide">
+            <h2>Fundamento Teórico Principal 📚</h2>
+            <h3>Teoría de la Autodeterminación (Deci & Ryan, 1985)</h3>
+            <div class="theory-grid">
+                <div class="theory-card">
+                    <h4>🎯 AUTONOMÍA</h4>
+                    <p>Sentir control sobre las propias acciones y tomar decisiones significativas</p>
+                </div>
+                <div class="theory-card">
+                    <h4>💪 COMPETENCIA</h4>
+                    <p>Experimentar dominio y eficacia, superando desafíos graduales</p>
+                </div>
+                <div class="theory-card">
+                    <h4>🤝 RELACIÓN</h4>
+                    <p>Conectar con otros y sentirse parte de una comunidad</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Teorías Complementarias -->
+        <div class="slide">
+            <h2>Teorías Complementarias 🧠</h2>
+            <div class="theory-grid">
+                <div class="theory-card">
+                    <h4>Teoría del Flujo</h4>
+                    <p><strong>Mihaly Csikszentmihalyi (1990)</strong><br>
+                    Estado óptimo de concentración y participación total</p>
+                </div>
+                <div class="theory-card">
+                    <h4>Condicionamiento Operante</h4>
+                    <p><strong>B.F. Skinner</strong><br>
+                    Los refuerzos positivos aumentan la probabilidad de repetir comportamientos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Elementos de Gamificación -->
+        <div class="slide">
+            <h2>Elementos de la Gamificación 🎮</h2>
+            <div class="elements-grid">
+                <div class="element-card">
+                    <span class="icon">📊</span>
+                    <h4>Puntos y Puntuación</h4>
+                    <p>Sistema de recompensas cuantificables</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">📈</span>
+                    <h4>Niveles y Progresión</h4>
+                    <p>Avance gradual hacia objetivos</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">🏅</span>
+                    <h4>Insignias y Logros</h4>
+                    <p>Reconocimiento de hitos alcanzados</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">🏆</span>
+                    <h4>Tablas de Clasificación</h4>
+                    <p>Comparación social motivadora</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Más Elementos -->
+        <div class="slide">
+            <h2>Elementos Adicionales ⚡</h2>
+            <div class="elements-grid">
+                <div class="element-card">
+                    <span class="icon">⚡</span>
+                    <h4>Retroalimentación Inmediata</h4>
+                    <p>Respuesta instantánea a acciones</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">📚</span>
+                    <h4>Narrativa e Historia</h4>
+                    <p>Contexto significativo para el aprendizaje</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">🎨</span>
+                    <h4>Personalización</h4>
+                    <p>Adaptación a preferencias individuales</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">👥</span>
+                    <h4>Colaboración Social</h4>
+                    <p>Trabajo en equipo y apoyo mutuo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Objetivos -->
+        <div class="slide">
+            <h2>Objetivos de la Gamificación Educativa 🎯</h2>
+            <div class="definition-box">
+                <h3>Objetivo Principal</h3>
+                <p>Aumentar la motivación intrínseca y extrínseca del estudiante hacia el aprendizaje</p>
+            </div>
+            <div class="theory-grid">
+                <div class="theory-card">
+                    <h4>📈 Mejorar el Rendimiento</h4>
+                    <p>Incrementar retención y comprensión</p>
+                </div>
+                <div class="theory-card">
+                    <h4>🤝 Fomentar Colaboración</h4>
+                    <p>Promover trabajo en equipo</p>
+                </div>
+                <div class="theory-card">
+                    <h4>💪 Desarrollar Persistencia</h4>
+                    <p>Superar dificultades académicas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Ejemplos Prácticos -->
+        <div class="slide">
+            <h2>Ejemplos Prácticos 🌟</h2>
+            <div class="elements-grid">
+                <div class="element-card">
+                    <span class="icon">🌍</span>
+                    <h4>DUOLINGO</h4>
+                    <p>Racha diaria, puntos XP, ligas<br>Aprendizaje de idiomas</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">📚</span>
+                    <h4>KHAN ACADEMY</h4>
+                    <p>Insignias por dominio, puntos de energía<br>Matemáticas y ciencias</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">⚔️</span>
+                    <h4>CLASSCRAFT</h4>
+                    <p>RPG completo en el aula<br>Trabajo colaborativo</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">🧱</span>
+                    <h4>MINECRAFT EDUCATION</h4>
+                    <p>Construcción y exploración<br>Múltiples materias</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Beneficios -->
+        <div class="slide">
+            <h2>Beneficios Comprobados ✅</h2>
+            <div class="theory-grid">
+                <div class="theory-card">
+                    <h4>🧠 Beneficios Cognitivos</h4>
+                    <ul class="benefits-list">
+                        <li>Mejor retención de información</li>
+                        <li>Mayor comprensión de conceptos</li>
+                        <li>Desarrollo del pensamiento crítico</li>
+                    </ul>
+                </div>
+                <div class="theory-card">
+                    <h4>🔥 Beneficios Motivacionales</h4>
+                    <ul class="benefits-list">
+                        <li>Incremento en motivación intrínseca</li>
+                        <li>Mayor persistencia ante dificultades</li>
+                        <li>Actitud positiva hacia el aprendizaje</li>
+                    </ul>
+                </div>
+                <div class="theory-card">
+                    <h4>👥 Beneficios Sociales</h4>
+                    <ul class="benefits-list">
+                        <li>Mejor colaboración entre estudiantes</li>
+                        <li>Desarrollo de habilidades comunicativas</li>
+                        <li>Construcción de comunidad de aprendizaje</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Investigación -->
+        <div class="slide">
+            <h2>Evidencia Científica 🔬</h2>
+            <div class="quote">
+                <p><strong>Meta-análisis de Hamari, Koivisto & Sarsa (2014):</strong><br>
+                Efectos positivos significativos en motivación intrínseca y mayor efectividad cuando se combinan múltiples elementos.</p>
+            </div>
+            <div class="quote">
+                <p><strong>Revisión Sistemática de Dicheva et al. (2015):</strong><br>
+                Mejoras consistentes en engagement estudiantil e incremento en motivación hacia el aprendizaje.</p>
+            </div>
+            <div class="quote">
+                <p><strong>Estudio de Domínguez et al. (2013):</strong><br>
+                Mejores calificaciones en actividades gamificadas y mayor participación en foros de discusión.</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Desafíos -->
+        <div class="slide">
+            <h2>Desafíos y Consideraciones ⚠️</h2>
+            <div class="theory-grid">
+                <div class="theory-card">
+                    <h4>⚠️ Sobre-justificación</h4>
+                    <p>Riesgo de reducir motivación intrínseca por dependencia excesiva de recompensas externas</p>
+                </div>
+                <div class="theory-card">
+                    <h4>❌ Diseño Inadecuado</h4>
+                    <p>Elementos mal implementados y falta de alineación con objetivos educativos</p>
+                </div>
+                <div class="theory-card">
+                    <h4>👤 Diferencias Individuales</h4>
+                    <p>No todos los estudiantes responden igual, necesidad de personalización</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Futuro -->
+        <div class="slide">
+            <h2>Futuro de la Gamificación Educativa 🚀</h2>
+            <div class="elements-grid">
+                <div class="element-card">
+                    <span class="icon">🥽</span>
+                    <h4>Realidad Virtual y Aumentada</h4>
+                    <p>Experiencias inmersivas de aprendizaje</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">🤖</span>
+                    <h4>Inteligencia Artificial</h4>
+                    <p>Personalización adaptativa</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">📊</span>
+                    <h4>Analítica de Aprendizaje</h4>
+                    <p>Seguimiento detallado del progreso</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">📱</span>
+                    <h4>Gamificación Móvil</h4>
+                    <p>Aprendizaje ubicuo y micro-aprendizaje</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Implementación -->
+        <div class="slide">
+            <h2>Framework de Implementación 🛠️</h2>
+            <h3>Framework 6D de Werbach & Hunter (2012)</h3>
+            <div class="elements-grid">
+                <div class="element-card">
+                    <span class="icon">🎯</span>
+                    <h4>DEFINE</h4>
+                    <p>Objetivos educativos claros</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">📋</span>
+                    <h4>DELINEATE</h4>
+                    <p>Comportamientos objetivo</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">👥</span>
+                    <h4>DESCRIBE</h4>
+                    <p>Tipos de estudiantes</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">🔄</span>
+                    <h4>DEVISE</h4>
+                    <p>Bucles de actividad</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">😊</span>
+                    <h4>DON'T FORGET</h4>
+                    <p>La diversión es central</p>
+                </div>
+                <div class="element-card">
+                    <span class="icon">🚀</span>
+                    <h4>DEPLOY</h4>
+                    <p>Herramientas apropiadas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Conclusiones -->
+        <div class="slide">
+            <h2>Conclusiones 💡</h2>
+            <div class="definition-box">
+                <p><strong>La gamificación representa un paradigma educativo transformador, fundamentado en teorías psicológicas sólidas, que ofrece herramientas poderosas para motivar, involucrar y mejorar el aprendizaje.</strong></p>
+            </div>
+            <ul class="benefits-list" style="font-size: 1.4em; margin: 30px 0;">
+                <li>Fundamento científico sólido en teorías de motivación</li>
+                <li>Evidencia empírica de efectividad en contextos educativos</li>
+                <li>Múltiples beneficios cognitivos, motivacionales y sociales</li>
+                <li>Implementación exitosa requiere diseño cuidadoso</li>
+                <li>Futuro prometedor con tecnologías emergentes</li>
+            </ul>
+        </div>
+
+        <!-- Slide 15: Reflexión Final -->
+        <div class="slide title-slide">
+            <h2 style="color: white;">Reflexión Final 🌟</h2>
+            <div class="quote" style="background: rgba(255, 255, 255, 0.2); color: white; border-left-color: white; font-size: 1.6em; margin: 40px 0;">
+                <p><strong>"El futuro de la educación está en hacer del aprendizaje una experiencia tan atractiva como un juego, pero sin perder de vista que el objetivo final es el desarrollo integral del estudiante."</strong></p>
+            </div>
+            <div style="margin-top: 60px; font-size: 3em;">
+                <span>🎓</span> <span>🎮</span> <span>🚀</span>
+            </div>
+            <p style="margin-top: 40px; font-size: 1.4em; color: white;">¡Gracias por su atención!</p>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="previousSlide()">⏮️ Anterior</button>
+            <button class="control-btn" onclick="toggleAutoplay()" id="playBtn">⏸️ Pausar</button>
+            <button class="control-btn" onclick="nextSlide()">Siguiente ⏭️</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        let slides = document.querySelectorAll('.slide');
+        let totalSlides = slides.length;
+        let isPlaying = true;
+        let autoplayInterval;
+
+        // Actualizar contador de diapositivas
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            // Ocultar todas las diapositivas
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            // Mostrar la diapositiva actual
+            slides[index].classList.add('active');
+
+            // Animar elementos de la diapositiva
+            setTimeout(() => {
+                const cards = slides[index].querySelectorAll('.theory-card, .element-card');
+                cards.forEach((card, i) => {
+                    setTimeout(() => {
+                        card.classList.add('animate');
+                    }, i * 200);
+                });
+            }, 300);
+
+            // Actualizar barra de progreso
+            const progress = ((index + 1) / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Actualizar contador
+            document.getElementById('currentSlide').textContent = index + 1;
+        }
+
+        function nextSlide() {
+            currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
+            showSlide(currentSlideIndex);
+        }
+
+        function previousSlide() {
+            currentSlideIndex = (currentSlideIndex - 1 + totalSlides) % totalSlides;
+            showSlide(currentSlideIndex);
+        }
+
+        function toggleAutoplay() {
+            const playBtn = document.getElementById('playBtn');
+            if (isPlaying) {
+                clearInterval(autoplayInterval);
+                playBtn.textContent = '▶️ Reproducir';
+                isPlaying = false;
+            } else {
+                startAutoplay();
+                playBtn.textContent = '⏸️ Pausar';
+                isPlaying = true;
+            }
+        }
+
+        function startAutoplay() {
+            autoplayInterval = setInterval(() => {
+                nextSlide();
+            }, 5000); // Cambiar cada 5 segundos
+        }
+
+        // Controles de teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                previousSlide();
+            } else if (e.key === 'p' || e.key === 'P') {
+                toggleAutoplay();
+            }
+        });
+
+        // Inicializar
+        showSlide(0);
+        startAutoplay();
+
+        // Animar elementos al cargar
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.theory-card, .element-card');
+                cards.forEach((card, i) => {
+                    setTimeout(() => {
+                        card.classList.add('animate');
+                    }, i * 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>
